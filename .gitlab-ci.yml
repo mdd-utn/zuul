@@ -1,0 +1,98 @@
+image: maven:latest
+
+stages:
+  - build
+  - test
+  - push
+  - run
+
+variables:
+  MAVEN_CLI_OPTS: "-s ./ci_settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=/mnt/extra/.m2/repository"
+  DOCKER_NAME: "services"
+  DOCKER_PORT: "9099"
+  DOCKER_LINKS: "--link eureka:eureka --link config-server:config-server "
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+
+BUILDING:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS package -Dmaven.test.skip=true
+
+TESTING: 
+  stage: test 
+  script: 
+    - mvn $MAVEN_CLI_OPTS test
+  tags:
+    - test
+
+
+PUSHING-GIT-LAB:
+
+  image: docker:latest
+  stage: push
+  services:
+    - docker:dind
+  before_script:
+    - docker login --username $CI_REGISTRY_USER $CI_REGISTRY -p $CI_REGISTRY_PASSWORD
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE" .
+  
+    - docker tag "$CI_REGISTRY_IMAGE" "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - docker tag "$CI_REGISTRY_IMAGE" "$CI_REGISTRY_IMAGE":"latest"
+    
+    - docker push "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - docker push "$CI_REGISTRY_IMAGE":"latest"
+  only:
+    refs:
+      - develop
+
+PUSHING-DOCKER-HUB:
+  image: docker:latest
+  stage: push
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $DOCKER_HUB_USR -p $DOCKER_HUB_PWD
+  script:
+    - docker build -t informaticadrp/prod:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID" .
+    - docker build -t informaticadrp/prod:"latest" .
+    
+    - docker push informaticadrp/prod:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID"
+    - docker push informaticadrp/prod:"latest"
+  only:
+    refs:
+      - master
+  tags:
+      - deploy
+
+RUN-DEVELOP:
+  stage: run
+  script:
+    - docker login --username $CI_REGISTRY_USER $CI_REGISTRY -p $CI_REGISTRY_PASSWORD
+    - docker pull "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - docker stop $DOCKER_NAME || true && docker rm $DOCKER_NAME || true
+    - docker run -itd -p $DOCKER_PORT:$DOCKER_PORT --name $DOCKER_NAME -e "SPRING_PROFILES_ACTIVE=dev"  $DOCKER_LINKS --hostname $DOCKER_NAME --restart unless-stopped "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+
+  only:
+    refs:
+      - develop
+  tags:
+      - run-develop
+
+RUN-MASTER:
+  stage: run
+  script:
+    - docker login -u $DOCKER_HUB_USR -p $DOCKER_HUB_PWD
+    - docker pull informaticadrp/prod:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID"
+    - docker stop $DOCKER_NAME || true && docker rm $DOCKER_NAME || true
+    - docker run -itd -p $DOCKER_PORT:$DOCKER_PORT --name $DOCKER_NAME -e "SPRING_PROFILES_ACTIVE=prod"  $DOCKER_LINKS --hostname $DOCKER_NAME --restart unless-stopped informaticadrp/prod:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID"
+  only:
+    refs:
+      - master
+  tags:
+      - run-master
