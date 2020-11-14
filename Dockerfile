@@ -1,5 +1,4 @@
 FROM openjdk:12-alpine
-#FROM openjdk:alpine
 ENV TZ=America/Argentina/Mendoza
 ENV TERM=xterm
 
@@ -9,14 +8,11 @@ WORKDIR /app
 
 EXPOSE 9099/tcp
 
-ENV VIRTUAL_HOST=stg-tool-srv-zuul
-ENV VIRTUAL_PORT=9099
-ENV server.port=9099
-ENV server.servlet.context-path=/services
+ENV VIRTUAL_HOST=stg-proxy
 
-ENV spring.application.name=zuul-server
+ENV spring.application.name=proxy
 ENV spring.cloud.config.uri=http://config-server:8888/config-server
 ENV management.endpoints.web.exposure.include=*
-
+ENV server.forward-headers-strategy=framework
 
 CMD ["java","-jar","/app/gateway.jar","--server.port=9099"]

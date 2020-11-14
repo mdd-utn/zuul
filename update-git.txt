@@ -1,0 +1,64 @@
+git branch raul
+
+
+###fast!!
+
+cd /mnt/work/workspaces/workspace_antlr/zuul
+
+git checkout raul
+git add .
+git commit -m "Fix Dockerfile"
+git checkout develop
+git merge raul
+git push gitlab develop
+git push github develop
+git checkout raul
+
+
+git checkout master
+git merge develop
+git push gitlab master
+git push github master
+git checkout raul
+
+
+
+
+# procedimiento para actualizar cada rama(miembro del equipo)
+
+git checkout develop
+git merge rodrigo
+git merge ramses
+git merge juan
+git merge raul
+git merge joel
+git push origin develop
+git push gitlab develop
+
+
+git checkout rodrigo 
+git merge develop
+git push origin rodrigo
+git push gitlab rodrigo
+
+
+git checkout ramses 
+git merge develop
+git push origin ramses
+git push gitlab ramses
+
+git checkout juan 
+git merge develop
+git push origin juan
+git push gitlab juan
+
+git checkout raul 
+git merge develop
+git push origin raul
+git push gitlab raul
+
+
+git checkout raul 
+
+
+

@@ -4,14 +4,13 @@ stages:
   - build
   - test
   - push
-  - run
 
 variables:
   MAVEN_CLI_OPTS: "-s ./ci_settings.xml --batch-mode"
-  MAVEN_OPTS: "-Dmaven.repo.local=/mnt/extra/.m2/repository"
+  MAVEN_OPTS: ""
   DOCKER_NAME: "services"
   DOCKER_PORT: "9099"
-  DOCKER_LINKS: "--link eureka:eureka --link config-server:config-server "
+  DOCKER_LINKS: ""
 
 cache:
   paths:
