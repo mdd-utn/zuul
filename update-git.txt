@@ -5,6 +5,8 @@ git branch raul
 
 cd /mnt/work/workspaces/workspace_antlr/zuul
 
+git status
+
 git checkout raul
 git add .
 git commit -m "update-git"
