@@ -7,7 +7,7 @@ cd /mnt/work/workspaces/workspace_antlr/zuul
 
 git checkout raul
 git add .
-git commit -m "Fix Dockerfile"
+git commit -m "update-git"
 git checkout develop
 git merge raul
 git push gitlab develop
