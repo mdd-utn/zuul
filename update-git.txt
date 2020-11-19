@@ -10,6 +10,8 @@ git status
 git checkout raul
 git add .
 git commit -m "ci/cd master"
+git push gitlab raul
+git push github raul
 git checkout develop
 git merge raul
 git push gitlab develop
