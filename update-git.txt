@@ -9,7 +9,7 @@ git status
 
 git checkout raul
 git add .
-git commit -m "update-git"
+git commit -m "ci/cd master"
 git checkout develop
 git merge raul
 git push gitlab develop

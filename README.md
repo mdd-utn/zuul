@@ -43,7 +43,16 @@ zuul-proxy-local:latest
 
 
 docker logs proxy
+
+
+	TEST:
+	======
 	
+	http://0.0.0.0:7001/services/cnfsrv/config-server/colmena-github-webhook/dev
+	
+	http://0.0.0.0:7001/services/cnfsrv/config-server/colmena-audit/dev
+	
+	http://0.0.0.0:7001/services/colaudi/colmena-audit/
 		
 RUN DOCKER ON STAGE
 ====================

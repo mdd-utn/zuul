@@ -10,7 +10,7 @@ variables:
   MAVEN_OPTS: ""
   DOCKER_NAME: "services"
   DOCKER_PORT: "9099"
-  DOCKER_LINKS: ""
+  REGISTRY_PROD: "mddutn/colmena"
 
 cache:
   paths:
@@ -57,7 +57,7 @@ PUSHING-GIT-LAB:
     refs:
       - develop
       
-      
+       
 PUSHING-DOCKER-HUB:
   image: docker:latest
   stage: push
@@ -66,11 +66,14 @@ PUSHING-DOCKER-HUB:
   before_script:
     - echo $DOCKERHUB_PWD | docker login -u $DOCKERHUB_USR --password-stdin 
   script:
-    - docker build -t mddutn/colmena:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID" .
+    - docker build -t "$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID" .
     
-    - docker tag mddutn/colmena:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - docker tag "$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID" "$REGISTRY_PROD":"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID"
+    - docker tag "$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID" "$REGISTRY_PROD":"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"latest"
     
-    - docker push mddutn/colmena:"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID"
+    - docker push "$REGISTRY_PROD":"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"$CI_PIPELINE_IID"
+    - docker push "$REGISTRY_PROD":"$CI_COMMIT_REF_NAME"-"$CI_PROJECT_NAME"-"latest"
+    
   only:
     refs:
       - master
