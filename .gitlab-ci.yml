@@ -2,7 +2,7 @@ image: maven:latest
 
 stages:
   - build
-  - test
+#  - test
   - push
 
 variables:
@@ -25,16 +25,15 @@ BUILDING:
   only:
     refs:
       - develop
-      - master
       
-TESTING: 
-  stage: test 
-  script: 
-    - mvn $MAVEN_CLI_OPTS test
-  only:
-    refs:
-      - develop
-      - master
+#TESTING: 
+#  stage: test 
+#  script: 
+#    - mvn $MAVEN_CLI_OPTS test
+#  only:
+#    refs:
+#      - develop
+#      - master
 
 
 PUSHING-GIT-LAB:
